@@ -11,23 +11,26 @@ import PainelSenha from "./painelSenha";
 export default function Guiches(){
 
     const [guiches, setGuiches] = useState([])
-    const [painel, setPainel] = useState(true)
+    const [painel, setPainel] = useState(false)
    
 
     useEffect(() => {
-        let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImlhdCI6MTY4NTE2MjE2NiwiZXhwIjoxNjg1MTY1NzY2fQ.i5-xo6xKJShZwptaapg8exMvsZfLG2DZbAg72199RLs';
-    
-        const config = {
-            headers: { Authorization: `Bearer ${token}` }
-        };
-    
-        axios.get('http://192.168.0.107:4000/guiche', config)
-            .then((val) => {
-                console.log(val.data);
-                setGuiches(val.data.guiches);
-            })
-            .catch((error) => console.log(error));
-    }, []);
+        if(painel == false){
+                let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImlhdCI6MTY4NTE5NzY5NCwiZXhwIjoxNjg1MjAxMjk0fQ.ch-6jFDDFhUyZO9OZ8T4ps1ZNA5mv2bMbZqUwav69RY';
+        
+            const config = {
+                headers: { Authorization: `Bearer ${token}` }
+            };
+        
+            axios.get('http://10.6.128.114:4000/guiche', config)
+                .then((val) => {
+                    console.log(val.data);
+                    setGuiches(val.data.guiches);
+                })
+                .catch((error) => console.log(error));
+        }
+        
+    }, [painel]);
 
 
 
@@ -53,7 +56,7 @@ export default function Guiches(){
                                     <BsXCircleFill className={styles.botaoFechar} />
                                     <div><BsLaptop className={styles.iconeTelaCard} /></div>
                                     <div><h4>Guichê: {val.numero_guiche}</h4></div>
-                                    <div><button className={val.status == 'indisponivel' ? styles.botaoVermelho : styles.botao} onClick={()=> setPainel(val.numero_guiche)}>{val.status}</button></div>
+                                    <div><button className={val.status == 'indisponivel' ? styles.botaoVermelho : styles.botao} onClick={()=> {setPainel(val)}}>{val.status}</button></div>
                                 </div>
                             ))} 
 
