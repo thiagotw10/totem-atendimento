@@ -11,8 +11,6 @@ export default function Home() {
     <>
       <div>
         <h1>Olá</h1>
-        <p><Link href="atividade"><AiFillAppstore /></Link></p>
-        <p><Link href="kaban">Kanban</Link></p>
         <p><Link href="guiches">guiches</Link></p>
       </div>
     </>

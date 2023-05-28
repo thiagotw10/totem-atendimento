@@ -1,46 +1,87 @@
 import styles from "@/styles/TelaGuiches.module.css";
 import { useState, useEffect } from "react";
 import { BsFillCircleFill } from "react-icons/bs";
+import { FcHighPriority } from "react-icons/fc";
 import axios from "axios";
+import { io } from 'socket.io-client'
+import acessToken from "../api/token";
 
 export default function PainelSenha({dados, onClose}){
     const [senhas, setSenhas] = useState([]);
     const [senhaDetalhes, setSenhaDetalhes] = useState([]);
     const [senhaAndamento, setSenhaAndamento] = useState('');
+    const [socket, setSocket] = useState(null);
+    const [atualizacao, setAtualizacao] = useState('');
+    var token = acessToken()
 
     useEffect(() => {
-        let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImlhdCI6MTY4NTE5NzY5NCwiZXhwIjoxNjg1MjAxMjk0fQ.ch-6jFDDFhUyZO9OZ8T4ps1ZNA5mv2bMbZqUwav69RY';
-    
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.post('http://10.6.128.114:4000/senhas', {guiche: dados.id}, config)
+        axios.post('http://192.168.0.107:4000/senhas', {guiche: dados.id}, config)
             .then((val) => {
                 console.log(val.data.andamento);
                 setSenhaAndamento(val.data.andamento)
                 setSenhas(val.data.data);
+                setSenhaDetalhes([])
             })
             .catch((error) => console.log(error));
-    }, [dados]);
+    }, [dados, atualizacao]);
+
+    useEffect(() => {
+        const socket = io('http://localhost:3001')
+        setSocket(socket)
+        socket.on('connect', () => {
+            console.log('conectado')
+        })
+    
+        socket.on('disconnect', () => {
+          console.log('disconnected')
+        })
+
+    
+        socket.on('cardRender', async (msg)=>{
+            setAtualizacao(msg)
+        })
+    
+        return () => {
+          socket.disconnect()
+        }
+      }, [])
 
 
     function chamarAtendimento(numeroGuiche, numeroSenha){
-        let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImlhdCI6MTY4NTE5NzY5NCwiZXhwIjoxNjg1MjAxMjk0fQ.ch-6jFDDFhUyZO9OZ8T4ps1ZNA5mv2bMbZqUwav69RY';
+        
     
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.post('http://10.6.128.114:4000/chamar', {numero_guiche: numeroGuiche, numero_senha: numeroSenha}, config)
+        axios.post('http://192.168.0.107:4000/chamar', {numero_guiche: numeroGuiche, numero_senha: numeroSenha}, config)
             .then((val) => {
                 console.log(val.data.andamento);
                 setSenhaAndamento(val.data.andamento)
                 setSenhas(val.data.data);
+                socket.emit('cardRender', numeroSenha)
             })
             .catch((error) => console.log(error));
     }
 
+
+    function finalizarAtendimento(numeroSenha, numeroGuiche){
+       
+    
+        const config = {
+            headers: { Authorization: `Bearer ${token}` }
+        };
+    
+        axios.post('http://192.168.0.107:4000/finalizar', {senha: numeroSenha, guiche: numeroGuiche}, config)
+            .then((val) => {
+                socket.emit('cardRender', numeroSenha+'1')
+            })
+            .catch((error) => console.log(error));
+    }
 
     return(
     <>
@@ -54,12 +95,11 @@ export default function PainelSenha({dados, onClose}){
                     <div key={val.id} className={styles.painelSenhaCard} onClick={() => { setSenhaDetalhes(val) }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <BsFillCircleFill style={{ marginRight: '20px', color: 'green' }} />
+                        {val.prioridade == 'sim' ? <FcHighPriority style={{ marginRight: '20px', fontSize: '30px' }} />: ''}
                         <h2 style={{ margin: '0' }}>SENHA: {val.senha}</h2>
                     </div>
                     <div>
-                        <button disabled={senhaAndamento === 'sim'} className={styles.botao}>
-                        {val.status === 'indisponivel' ? 'Em atendimento' : 'Chamar'}
-                        </button>
+                        {val.status === 'indisponivel' ? <h3 style={{ margin: '0' }}><b>Em andamento</b></h3> : <h3 style={{ margin: '0' }}><b>Em aberto</b></h3>}
                     </div>
                     </div>
                 ))
@@ -75,8 +115,8 @@ export default function PainelSenha({dados, onClose}){
 
                 <div className={styles.painelSenhaListaBotoes}>
                     {senhaDetalhes.status !== 'indisponivel' ? <button disabled={senhaAndamento === 'sim' && senhaDetalhes.status !== 'indisponivel'} onClick={()=> chamarAtendimento(dados.numero_guiche, senhaDetalhes.senha)} className={styles.botao}>Chamar</button> : ''}
-                    {senhaDetalhes.status == 'indisponivel' && senhaAndamento == 'sim' ? <button className={styles.botao}>Finalizar</button> : ''}
-                    <button className={styles.botao}>Cancelar</button> 
+                    {senhaDetalhes.status == 'indisponivel' && senhaAndamento == 'sim' ? <button onClick={()=> finalizarAtendimento(senhaDetalhes.senha, dados.numero_guiche)} className={styles.botaoF}>Finalizar</button> : ''}
+                    <button className={styles.botaoF}>Cancelar</button> 
                 </div>
                 </>
                 :  ''}

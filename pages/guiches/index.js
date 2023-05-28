@@ -7,6 +7,8 @@ import { BsXCircleFill } from "react-icons/bs";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PainelSenha from "./painelSenha";
+import Link from "next/link";
+import acessToken from "../api/token";
 
 export default function Guiches(){
 
@@ -16,13 +18,13 @@ export default function Guiches(){
 
     useEffect(() => {
         if(painel == false){
-                let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImlhdCI6MTY4NTE5NzY5NCwiZXhwIjoxNjg1MjAxMjk0fQ.ch-6jFDDFhUyZO9OZ8T4ps1ZNA5mv2bMbZqUwav69RY';
+                let token = acessToken();
         
             const config = {
                 headers: { Authorization: `Bearer ${token}` }
             };
         
-            axios.get('http://10.6.128.114:4000/guiche', config)
+            axios.get('http://192.168.0.107:4000/guiche', config)
                 .then((val) => {
                     console.log(val.data);
                     setGuiches(val.data.guiches);
@@ -42,7 +44,7 @@ export default function Guiches(){
     <div className={styles.container}>
         <div className={styles.menuVertical}>
             <div className={styles.listaMenus}>
-                <div className={styles.caixaMenu}><BsDisplay className={styles.iconeTela}/></div>
+                <div className={styles.caixaMenu}><Link href="/senhas"><BsDisplay className={styles.iconeTela}/></Link></div>
                 
             </div>
         </div>
