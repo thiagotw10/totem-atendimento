@@ -143,10 +143,17 @@
 }
 
 .painelSenhaCards{
-    width: 30%;
-    height: 70vh;
+    width: 35%;
+    height: 77vh;
     overflow: overlay;
     padding: 0 30px;
+}
+
+.painellSenhaCards{
+    width: 50%;
+    height: 80vh;
+    overflow: overlay;
+    padding: 30px 50px;
 }
 
 .painelSenhaDetalhes{

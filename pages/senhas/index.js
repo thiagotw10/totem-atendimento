@@ -4,6 +4,7 @@ import { BsFillCircleFill } from "react-icons/bs";
 import axios from "axios";
 import { io } from 'socket.io-client'
 import acessToken from "../api/token";
+import { FcHighPriority, FcInspection } from "react-icons/fc";
 
 export default function Senhas(){
 
@@ -62,7 +63,7 @@ export default function Senhas(){
 
     return (<>
         <div className={styles.painelSenhas}>
-            <div className={styles.painelSenhaCards}>
+            <div className={styles.painellSenhaCards}>
                 <h1 style={{textAlign: 'center'}}>Fique de olho aqui na tela, sua senha vai ser chamada aqui</h1>
                 <h3 style={{textAlign: 'center'}}>Ultimas senhas chamadas</h3>
                 {senhas.length === 0 ? (
@@ -72,6 +73,8 @@ export default function Senhas(){
                         <div key={val.senha} className={index === 0 ? styles.blink : styles.painelSenhaCard}>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <BsFillCircleFill style={{ marginRight: '20px', color: 'green' }} />
+                            {val.tipo_atendimento == 'prioridade' ? <FcHighPriority style={{ marginRight: '20px', fontSize: '30px' }} />: ''}
+                            {val.tipo_atendimento == 'exame' ? <FcInspection style={{ marginRight: '20px', fontSize: '30px' }} />: ''}
                             <h2 style={{ margin: '0' }}>SENHA: {val.senha}</h2>
                         </div>
                         <div>
