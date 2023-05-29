@@ -11,16 +11,17 @@ export default function Senhas(){
     const [senhas, setSenhas] = useState([]);
     const [socket, setSocket] = useState(null);
     const [atualizacao, setAtualizacao] = useState('');
+  
 
 
     useEffect(() => {
-        let token = acessToken();
-    
+        let token = acessToken().token;
+        var urlApi = acessToken().url
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.get('http://192.168.0.107:4000/historico', config)
+        axios.get(urlApi+'/historico', config)
             .then((val) => {
                 setSenhas(val.data.historico);  
             })
@@ -28,7 +29,8 @@ export default function Senhas(){
     }, [atualizacao]);
 
     useEffect(() => {
-        const socket = io('http://localhost:3001')
+        var urlSocket = acessToken().urlSocket
+        const socket = io(urlSocket)
         setSocket(socket)
         socket.on('connect', () => {
             console.log('conectado')

@@ -16,11 +16,7 @@ const io = new Server(server,{
 const cors = require('cors');
 app.use(cors());
 
-const Redis = require('ioredis');
 
-const redis = new Redis();
-
-let dadosArray = []
 io.on('connection', (socket) => {
     // console.log(socket.id+', conectado ...')
 

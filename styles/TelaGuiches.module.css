@@ -173,6 +173,17 @@
     cursor: pointer;
 }
 
+.painelSenhaCardSelect{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100px;
+    box-shadow: 3px 5px 5px -3px rgba(0,0,0,0.75);
+    margin: 10px 0;
+    cursor: pointer;
+    background-color: rgba(134, 197, 18, 0.178);
+}
+
 .painelSenhaCard:hover{
     background-color: rgba(134, 197, 18, 0.178);
 }
@@ -221,4 +232,34 @@
     box-shadow: 3px 5px 5px -3px rgba(0,0,0,0.75);
     margin: 10px 0;
     cursor: pointer;
+  }
+
+
+
+  .loader {
+    display: inline-block;
+    position: relative;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .inner {
+    animation: loader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    transform: translateZ(0);
+    background-color: #00ff00;
+    width: 4%;
+    height: 8%;
+    border-radius: 50%;
+    opacity: 0.6;
+    position: absolute;
+  }
+  
+  @keyframes loader {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
   }

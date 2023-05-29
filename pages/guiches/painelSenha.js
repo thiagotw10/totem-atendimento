@@ -12,24 +12,33 @@ export default function PainelSenha({dados, onClose}){
     const [senhaAndamento, setSenhaAndamento] = useState('');
     const [socket, setSocket] = useState(null);
     const [atualizacao, setAtualizacao] = useState('');
-    var token = acessToken()
+    const [loading, setLoading] = useState(false)
+    const [loadingDetalhes, setLoadingDetalhes] = useState(false)
+
+   
+    
 
     useEffect(() => {
+        let token = acessToken().token
+        let urlApi = acessToken().url
+        setLoadingDetalhes(true)
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.post('http://192.168.0.107:4000/senhas', {guiche: dados.id}, config)
+        axios.post(urlApi+'/senhas', {guiche: dados.id}, config)
             .then((val) => {
                 console.log(val.data.andamento);
                 setSenhaAndamento(val.data.andamento)
                 setSenhas(val.data.data);
+                setLoadingDetalhes(false)
             })
             .catch((error) => console.log(error));
     }, [dados, atualizacao]);
 
     useEffect(() => {
-        const socket = io('http://localhost:3001')
+        var urlSocket = acessToken().urlSocket
+        const socket = io(urlSocket)
         setSocket(socket)
         socket.on('connect', () => {
             console.log('conectado')
@@ -63,48 +72,55 @@ export default function PainelSenha({dados, onClose}){
       }
 
     function chamarAtendimento(numeroGuiche, numeroSenha){
-        
-    
+        setLoading(true)
+        let token = acessToken().token
+        let urlApi = acessToken().url
+
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.post('http://192.168.0.107:4000/chamar', {numero_guiche: numeroGuiche, numero_senha: numeroSenha}, config)
+        axios.post(urlApi+'/chamar', {numero_guiche: numeroGuiche, numero_senha: numeroSenha}, config)
             .then((val) => {
                 socket.emit('cardRender', numeroSenha)
                 senhaDetalhes.status = 'indisponivel'
                 setSenhaDetalhes(senhaDetalhes)
+                setLoading(false)
             })
             .catch((error) => console.log(error));
     }
 
 
     function finalizarAtendimento(numeroSenha, numeroGuiche){
-       
-    
+        let token = acessToken().token
+        let urlApi = acessToken().url
+        setLoading(true)
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.post('http://192.168.0.107:4000/finalizar', {senha: numeroSenha, guiche: numeroGuiche}, config)
+        axios.post(urlApi+'/finalizar', {senha: numeroSenha, guiche: numeroGuiche}, config)
             .then((val) => {
                 socket.emit('cardRender', numeroSenha+'1')
                 setSenhaDetalhes([])
+                setLoading(false)
             })
             .catch((error) => console.log(error));
     }
 
     function cancelarAtendimento(numeroSenha, numeroGuiche){
-       
-    
+        let token = acessToken().token
+        let urlApi = acessToken().url
+        setLoading(true)
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
     
-        axios.post('http://192.168.0.107:4000/cancelar', {senha: numeroSenha, guiche: numeroGuiche}, config)
+        axios.post(urlApi+'/cancelar', {senha: numeroSenha, guiche: numeroGuiche}, config)
             .then((val) => {
                 socket.emit('cardRender', numeroSenha+'1')
                 setSenhaDetalhes([])
+                setLoading(false)
             })
             .catch((error) => console.log(error));
     }
@@ -114,11 +130,11 @@ export default function PainelSenha({dados, onClose}){
         <h1>{dados.numero_guiche}</h1>
         <div className={styles.painelSenhaContainer}>
             <div className={styles.painelSenhaCards}>
-            {senhas.length === 0 ? (
+            {loadingDetalhes ? <div className={styles.inner}></div> : senhas.length === 0 ? (
                 <p>Não há atendimento disponível no momento.</p>
                 ) : (
                 senhas.map((val) => (
-                    <div key={val.id} className={styles.painelSenhaCard} onClick={() => { setSenhaDetalhes(val) }}>
+                    <div key={val.id} className={senhaDetalhes.senha == val.senha ? styles.painelSenhaCardSelect : styles.painelSenhaCard} onClick={() => { setSenhaDetalhes(val) }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <BsFillCircleFill style={{ marginRight: '20px', color: 'green' }} />
                         {val.tipo_atendimento == 'prioridade' ? <FcHighPriority style={{ marginRight: '20px', fontSize: '30px' }} />: ''}
@@ -134,7 +150,7 @@ export default function PainelSenha({dados, onClose}){
             )}
             </div>
             <div className={styles.painelSenhaDetalhes}>
-                {senhaDetalhes.senha ? <>
+                {loading ? <div className={styles.inner}></div> : senhaDetalhes.senha ? <>
                  <div className={styles.painelSenhaTexto}>
                     <h1 style={{fontSize: '70px'}}>SENHA: {senhaDetalhes.senha}</h1>
                     <h3><b>Tipo de atendimento:</b> {senhaDetalhes.tipo_atendimento}</h3>

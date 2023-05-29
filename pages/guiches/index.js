@@ -18,13 +18,14 @@ export default function Guiches(){
 
     useEffect(() => {
         if(painel == false){
-                let token = acessToken();
+                let token = acessToken().token;
+                let urlApi = acessToken().url;
         
             const config = {
                 headers: { Authorization: `Bearer ${token}` }
             };
         
-            axios.get('http://192.168.0.107:4000/guiche', config)
+            axios.get(urlApi+'/guiche', config)
                 .then((val) => {
                     console.log(val.data);
                     setGuiches(val.data.guiches);
